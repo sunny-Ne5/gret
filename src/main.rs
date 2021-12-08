@@ -1,3 +1,4 @@
+use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -10,19 +11,16 @@ struct Cli {
     path: std::path::PathBuf,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = Cli::from_args();
-    let f = File::open(&args.path).expect("couldn't open file");
+    let f = File::open(&args.path)
+        .with_context(|| format!("could not open file {}", &args.path.display()))?;
     let reader = BufReader::new(f);
 
     for line in reader.lines() {
-        match line {
-            Ok(data) => {
-                if data.contains(&args.pattern) {
-                    println!("{}", data);
-                }
-            }
-            Err(err) => println!("Error: {}", err),
-        }
+        let data = &line
+            .with_context(|| format!("could not read line from file `{}`", args.path.display()))?;
+        gret::check_match(&data, &args.pattern, &mut std::io::stdout());
     }
+    Ok(())
 }
