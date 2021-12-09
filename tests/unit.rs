@@ -4,9 +4,10 @@ fn test_check_match_positive() {
     let line: &String = &"Lets see if it works".to_string();
     let pattern: &String = &"works".to_string();
     gret::check_match(&line, &pattern, &mut result);
+    result.pop(); //Remove "\n"
     assert_eq!(result, line.as_bytes())
 }
-
+#[test]
 fn test_check_match_negative() {
     let mut result = Vec::new();
     let line: &String = &"Lets see if it works".to_string();
